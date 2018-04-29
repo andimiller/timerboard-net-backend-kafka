@@ -14,9 +14,8 @@ object InputMain extends StreamApp[IO] {
       s <- Scheduler[IO](4)
       client <- Http1Client.stream[IO](BlazeClientConfig.defaultConfig)
       data = new Input(tq).go[IO](s, client)
-      sink = fs2.io.stdout[IO]
-      transformer = fs2.text.utf8Encode[IO]
-      main <- data.through(transformer).to(sink).filter(_ => false).flatMap(_ => Stream.emit(StreamApp.ExitCode.Success)) ++ Stream.emit(StreamApp.ExitCode.Success)
+      kafkasink = Producer.kafka[IO]("esi-sov-campaigns")
+      main <- data.to(kafkasink).filter(_ => false).flatMap(_ => Stream.emit(StreamApp.ExitCode.Success)) ++ Stream.emit(StreamApp.ExitCode.Success)
     } yield main
   }
 }

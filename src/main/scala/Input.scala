@@ -13,7 +13,7 @@ class Input(uri: Uri)(implicit val ec: ExecutionContext) {
   val log = LoggerFactory.getLogger(getClass)
 
   def go[E[_]: Effect](s: Scheduler, c: Client[E]): Stream[E, String] = {
-    s.awakeEvery(10.seconds).flatMap { d: FiniteDuration =>
+    (Stream.emit(0.seconds) ++ s.awakeEvery(10.seconds)).flatMap { d: FiniteDuration =>
       Stream.attemptEval(c.expect[String](uri))
     }.flatMap{x =>
       x.leftMap(e => log.warn("Unable to get data", e)).toOption.map(Stream.emit).getOrElse(Stream.empty)
