@@ -8,27 +8,51 @@ This application is modelled using streams and ktables with kafka.
 
 database esi
 
-queue sov
+queue sov_in
+queue alliance_req
 queue alliance
+queue system_req
 queue system
+queue sov_out
 
-poller -> esi : poll
-esi --> sov : response
-sov -> augmenter : trigger augmentations
-augmenter -> esi : ask for extra hydration data
-esi --> alliance : alliance data
-esi --> system : system data
+control poller
+control augmenter
+control augmenter_poller
+control combiner
+control egress
 
-sov --> augmenter
-alliance --> augmenter
-system --> augmenter
+actor user
 
-queue hydrated_sov
 
-augmenter -> hydrated_sov
+loop polling
+poller -> esi: got new sov data?
+esi --> sov_in : response
+end
 
-hydrated_sov -> egress : collect
+loop augmenting
+sov_in -> augmenter : trigger augmentations
+augmenter -> alliance_req: ask for alliance data
+augmenter -> system_req: ask for system data 
+end
 
-egress -> user : websocket fanout
+loop augmentation_requester
+augmenter_poller <- alliance_req
+augmenter_poller <- system_req
+augmenter_poller -> esi: give me this data
+esi --> alliance
+esi --> system
+end
+
+loop combining
+sov_in -> combiner
+alliance --> combiner
+system --> combiner
+combiner -> sov_out
+end
+
+loop egress
+sov_out -> egress
+egress -> user: websocket fanout
+end
 
 @enduml
