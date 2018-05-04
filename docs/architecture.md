@@ -8,17 +8,28 @@ This application is modelled using streams and ktables with kafka.
 
 database esi
 
+box "Input kafka topics" #LightBlue
 queue sov_in
-queue alliance_req
 queue alliance
-queue system_req
 queue system
-queue sov_out
+end box
+
+box "Request kafka topics" #Yellow
+queue alliance_req
+queue system_req
+end box
+
 
 control poller
 control augmenter
 control augmenter_poller
 control combiner
+
+box "Result kafka topics" #Green
+queue sov_out
+end box
+
+
 control egress
 
 actor user
