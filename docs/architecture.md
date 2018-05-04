@@ -10,8 +10,6 @@ database esi
 
 box "Input kafka topics" #LightBlue
 queue sov_in
-queue alliance
-queue system
 end box
 
 box "Request kafka topics" #Yellow
@@ -22,6 +20,12 @@ end box
 
 control poller
 control augmenter
+
+box "Working data kafka tables" #Grey
+queue alliance
+queue system
+end box
+
 control augmenter_poller
 control combiner
 
