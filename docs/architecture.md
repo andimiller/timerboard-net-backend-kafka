@@ -21,12 +21,12 @@ end box
 control poller
 control augmenter
 
+control worker
 box "Working data kafka tables" #Grey
 queue alliance
 queue system
 end box
 
-control augmenter_poller
 control combiner
 
 box "Result kafka topics" #Green
@@ -51,9 +51,9 @@ augmenter -> system_req: ask for system data
 end
 
 loop augmentation_requester
-augmenter_poller <- alliance_req
-augmenter_poller <- system_req
-augmenter_poller -> esi: give me this data
+worker <- alliance_req
+worker <- system_req
+worker -> esi: give me this data
 esi --> alliance
 esi --> system
 end
