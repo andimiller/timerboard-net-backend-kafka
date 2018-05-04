@@ -6,22 +6,29 @@ This application is modelled using streams and ktables with kafka.
 
 @startuml
 
-queue input
-control transform
-database tables {
-  database systems
-  database corps
-  database alliances
-}
-queue output
-cloud esi
+database esi
 
+queue sov
+queue alliance
+queue system
 
+poller -> esi : poll
+esi --> sov : response
+sov -> augmenter : trigger augmentations
+augmenter -> esi : ask for extra hydration data
+esi --> alliance : alliance data
+esi --> system : system data
 
-esi -> input
-input -> transform
-transform -> output
-esi -> tables
-tables -> transform
+sov --> augmenter
+alliance --> augmenter
+system --> augmenter
+
+queue hydrated_sov
+
+augmenter -> hydrated_sov
+
+hydrated_sov -> egress : collect
+
+egress -> user : websocket fanout
 
 @enduml
