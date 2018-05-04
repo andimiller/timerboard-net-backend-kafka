@@ -38,17 +38,21 @@ control egress
 
 actor user
 
+== polling ==
 
 loop polling
 poller -> esi: got new sov data?
 esi --> sov_in : response
 end
 
+== augmentation ==
+
 loop augmenting
 sov_in -> augmenter : trigger augmentations
 augmenter -> alliance_req: ask for alliance data
 augmenter -> system_req: ask for system data 
 end
+
 
 loop augmentation_requester
 worker <- alliance_req
@@ -64,6 +68,8 @@ alliance --> combiner
 system --> combiner
 combiner -> sov_out
 end
+
+== delivery ==
 
 loop egress
 sov_out -> egress
